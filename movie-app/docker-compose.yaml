@@ -1,0 +1,35 @@
+# docker-compose.yaml
+services:
+   javabackend:
+     image: danila163/backend:latest
+     restart: always
+     depends_on:
+      - mysql_db
+     ports:
+      - 9092:8080
+     container_name: backendmovie
+     command: sh -c './wait-for mysql_db:3306 -- npm start'
+     environment:
+     
+      spring.datasource.url: "jdbc:mysql://mysql_db:3306/moviedatabase?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true"
+   
+   mysql_db:
+     image: danila163/database:latest
+     restart: always
+     ports:
+      - 9093:3306
+     volumes:
+       - /Users/danilaberdnikov/dumps/Dump20230814/moviedatabase_checkout.sql:/docker-entrypoint-initdb.d/moviedatabase_checkout.sql 
+       - /Users/danilaberdnikov/dumps/Dump20230814/moviedatabase_movie.sql:/docker-entrypoint-initdb.d/moviedatabase_movie.sql
+       - /Users/danilaberdnikov/dumps/Dump20230814/moviedatabase_review.sql:/docker-entrypoint-initdb.d/moviedatabase_review.sql
+     environment:
+       - MYSQL_DATABASE=moviedatabase
+       - MYSQL_USER=danila
+       - MYSQL_PASSWORD=root123
+       - MYSQL_ROOT_PASSWORD=root123
+
+   client: 
+     image: danila163/frontend:latest
+     ports:
+      - 9094:3000
+       
